@@ -1,6 +1,6 @@
 {
     "functions": {
-      "api/open-graph-image": {
+      "pages/api/open-graph-image": {
         "maxDuration": 10,
         "memory": 1024
       }
