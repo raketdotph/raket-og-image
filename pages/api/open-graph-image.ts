@@ -26,7 +26,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     const page = await browser.newPage();
     await page.setViewport({ width: 640, height: 360 });
     await page.goto(url, { waitUntil: "networkidle0" });
-    const image = await page.screenshot({ type: "jpeg" });
+    const image = await page.screenshot({ type: "png" });
     await browser.close();
 
     res.statusCode = 200;
