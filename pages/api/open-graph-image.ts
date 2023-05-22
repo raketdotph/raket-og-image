@@ -1,7 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 import chrome from "chrome-aws-lambda";
 import { NextApiRequest, NextApiResponse } from "next";
-import absoluteUrl from "next-absolute-url";
 import puppeteer from "puppeteer-core";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
