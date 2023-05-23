@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "node node_modules/puppeteer/install.js"
+    "postinstall": "cd ./node_modules/puppeteer && npm install && cd .."
   },
   "dependencies": {
     "@types/node": "20.2.1",
