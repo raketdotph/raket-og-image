@@ -1,28 +1,24 @@
 /* eslint-disable import/no-anonymous-default-export */
-import chrome from "chrome-aws-lambda";
 import { NextApiRequest, NextApiResponse } from "next";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   try {
     const relativeUrl = (req.query["path"] as string) || "";
     const url = "https://raket.ph/" + relativeUrl;
 
-    const executablePath = await chrome.executablePath;
-    const options = executablePath
-      ? {
-          args: chrome.args,
-          executablePath: await chrome.executablePath,
-          headless: chrome.headless,
-          defaultViewport: chrome.defaultViewport,
-          ignoreHTTPSErrors: true,
-        }
-      : {
-          args: [],
-          executablePath:
-            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        };
+    const options = {
+      args: ["--no-sandbox"],
+      headless: true,
+      ignoreHTTPSErrors: true,
+    };
+    // : {
+    //     args: ["--no-sandbox"],
+    //     executablePath:
+    //       "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    //   };
 
+    console.log("OPTIONS", options);
     const browser = await puppeteer.launch(options);
     console.log("browser");
     const page = await browser.newPage();
