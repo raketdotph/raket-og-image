@@ -16,10 +16,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
       ],
       headless: true,
       ignoreHTTPSErrors: true,
-      executablePath:
-        process.env.NODE_ENV === "production"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : puppeteer.executablePath(),
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
     };
 
     console.log("OPTIONS", options);
