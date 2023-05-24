@@ -13,6 +13,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         "--no-sandbox",
         "--single-process",
         "--no-zygote",
+        '--disable-extensions'
       ],
       headless: true,
       ignoreHTTPSErrors: true,
