@@ -17,11 +17,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
       headless: true,
       ignoreHTTPSErrors: true,
     };
-    // : {
-    //     args: ["--no-sandbox"],
-    //     executablePath:
-    //       "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    //   };
 
     console.log("OPTIONS", options);
     const browser = await puppeteer.launch(options);
