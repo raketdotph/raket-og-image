@@ -13,13 +13,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         "--no-sandbox",
         "--single-process",
         "--no-zygote",
-        '--use-gl=egl',
-        '--disable-dev-shm-usage'
       ],
-      ignoreDefaultArgs: ['--disable-extensions'],
       headless: true,
       ignoreHTTPSErrors: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
     };
 
     console.log("OPTIONS", options);
