@@ -20,6 +20,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
     const browser = await puppeteer.launch(options);
     const page = await browser.newPage();
+
+    console.log("open puppeteer", page, options);
+
     await page.setViewport({ width: 640, height: 360 });
     await page.goto(url, { waitUntil: "networkidle0" });
     const image = await page.screenshot({ type: "png" });
@@ -30,6 +33,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     res.setHeader("Content-Type", `image/png`);
     res.end(image);
   } catch (error) {
+    console.log("error", error);
     res.json({
       status: "error",
       data: error || "Something went wrong",
