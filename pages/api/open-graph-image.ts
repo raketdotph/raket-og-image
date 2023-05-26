@@ -19,9 +19,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     };
 
     const browser = await puppeteer.launch(options);
+    console.log("options", options);
     const page = await browser.newPage();
-
-    console.log("open puppeteer", page, options);
+    console.log("new page", page);
 
     await page.setViewport({ width: 640, height: 360 });
     await page.goto(url, { waitUntil: "networkidle0" });
