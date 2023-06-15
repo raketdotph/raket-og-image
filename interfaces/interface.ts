@@ -2,14 +2,28 @@ export interface Raketeer {
   id: string;
   attributes: {
     username: string;
-    seoImage: string | null;
+    ogImage: {
+      data: {
+        id: string;
+        attributes: {
+          url: string;
+        };
+      } | null;
+    };
   };
 }
 
 export interface Raket {
   data: {
     id: string;
-    slug: string;
+    ogImage: {
+      data: {
+        id: string;
+        attributes: {
+          url: string;
+        };
+      } | null;
+    };
     seoImage: string | null;
   };
 }
@@ -20,7 +34,14 @@ export interface Product {
       id: string;
       attributes: {
         slug: string;
-        seoImage: string | null;
+        ogImage: {
+          data: {
+            id: string;
+            attributes: {
+              url: string;
+            };
+          } | null;
+        };
       };
     }>;
   };
@@ -28,6 +49,7 @@ export interface Product {
 
 export interface SEOData {
   id: string;
-  seoImage: string | null;
+  userId: string;
+  ogImage: string | null;
   data: Raket | Raketeer | Product;
 }

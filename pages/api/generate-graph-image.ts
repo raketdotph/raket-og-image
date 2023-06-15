@@ -1,15 +1,15 @@
 /* eslint-disable import/no-anonymous-default-export */
-import { buildStrapiUploadFormData } from "@/utilities/strapi";
+import { saveImageToDatabase } from "@/utilities/strapi";
 import { NextApiRequest, NextApiResponse } from "next";
 import puppeteer from "puppeteer";
 import axios from "axios";
 import qs from "qs";
-import { SEOData } from "@/interfaces/interface";
+import { Product, Raket, Raketeer, SEOData } from "@/interfaces/interface";
 
 const api = "http://localhost:3000/api";
 const origin = "http://localhost:3000/";
 
-type DataType = "raket" | "raketeer" | "product";
+export type DataType = "raket" | "raketeer" | "product";
 
 // GET /generate-graph-image?username=joyce&type=rakateer
 // GET /generate-graph-image?username=joyce&type=raket&slug=test-raket
@@ -19,6 +19,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     const username = (req.query["username"] as string) || "";
     const slug = (req.query["slug"] as string) || "";
     const type = (req.query["type"] as DataType) || "raketeer";
+    const force = (req.query["force"] as unknown as boolean) || false;
 
     let fetchUrl = ``;
     if (type === "raketeer") {
@@ -33,10 +34,10 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     }
 
     // 1. get the raketeer / raket / product, check if seo image is already generated, return if already generated
-    const fetchedData = await fetchData(username, slug, type);
-    if (!!fetchedData.seoImage) {
+    const seoData = await fetchSEOData(username, slug, type);
+    if (!force && !!seoData.ogImage) {
       res.statusCode = 405;
-      res.json({ status: "seo image already generated" });
+      res.json({ status: 405, message: "Seo image already generated" });
       return;
     }
 
@@ -44,13 +45,15 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     const image = await generateImage(fetchUrl);
 
     // 3. save {image} to database
-    // const imageUrl = await saveImageToDatabase("seoImage", type, "", image);
-
-    // (OPTIONAL) 4. save the link to the user/raket/product as `seoImage`
-    // await saveImageToData(fetchedData.id, imageUrl, type);
+    const imageUrl = await saveImageToDatabase(
+      "ogImage",
+      type,
+      seoData.userId,
+      image
+    );
 
     res.statusCode = 200;
-    res.send({ status: fetchedData });
+    res.send({ status: 200, url: imageUrl.data[0].url });
   } catch (error) {
     res.json({
       status: "error",
@@ -75,22 +78,36 @@ async function generateImage(url: string) {
   const page = await browser.newPage();
   await page.setViewport({ width: 640, height: 360 });
   await page.goto(url, { waitUntil: "networkidle0", timeout: 0 });
-  const image = await page.screenshot({ type: "png" });
+  const image = await page.screenshot({ type: "png", encoding: "base64" });
   await browser.close();
   return image;
 }
 
 // fetch data from database
-async function fetchData(
+async function fetchSEOData(
   username: string,
   slug: string,
   type: DataType
 ): Promise<SEOData> {
-  let url = "";
+  const { data: userData } = await axios({
+    method: "GET",
+    url: `${api}/raketeer?username=${username}`,
+  });
+
+  const seoData: SEOData = {
+    ogImage:
+      (userData as Raketeer).attributes.ogImage.data?.attributes.url ?? null,
+    data: userData,
+    id: userData.id,
+    userId: userData.id,
+  };
 
   if (type === "raketeer") {
-    url = `${api}/raketeer?username=${username}`;
-  } else if (type === "raket") {
+    return seoData;
+  }
+
+  let url = "";
+  if (type === "raket") {
     url = `${api}/raket?username=${username}&slug=${slug}`;
   } else if (type === "product") {
     const productParams = {
@@ -112,78 +129,19 @@ async function fetchData(
     url: url,
   });
 
-  const seoData: SEOData = {
-    seoImage: null,
-    data: data,
-    id: "",
-  };
-
-  if (data["id"]) {
-    // if raketeer
-    seoData.id = data.id;
-    seoData.seoImage = data.attributes.seoImage;
-  } else if (data["data"]) {
+  if (data["data"]) {
     // if raket
     seoData.id = data.data.id;
-    seoData.seoImage = data.data.seoImage;
+    seoData.ogImage = (data as Raket).data.ogImage.data?.attributes.url ?? null;
+    seoData.data = data;
   } else if (data["products"]) {
     // if product
     seoData.id = data.products.data[0].id;
-    seoData.seoImage = data.products.data[0].attributes.seoImage;
+    seoData.ogImage =
+      (data as Product).products.data[0].attributes.ogImage.data?.attributes
+        .url ?? null;
+    seoData.data = data;
   }
 
   return seoData;
-}
-
-async function saveImageLinkToMyData(
-  id: string,
-  imageUrl: string,
-  type: DataType
-) {
-  let url = `${api}/raketeer/update`;
-  if (type === "product") {
-    url = `${api}/products/${id}`;
-    return;
-  }
-
-  if (type === "raket") {
-    url = `${api}/raket/update`;
-    return;
-  }
-
-  await axios({
-    method: "POST",
-    url: url,
-    data: {
-      id: id,
-      data: {
-        seoImage: imageUrl,
-      },
-    },
-  });
-}
-
-/**
- * returns link of new image saved to database
- */
-async function saveImageToDatabase(
-  field: string,
-  imageType: DataType,
-  refId: string,
-  image: Buffer
-): Promise<string> {
-  const form = buildStrapiUploadFormData({
-    file: image,
-    field: field,
-    ref: imageType,
-    refId: refId,
-  });
-
-  const { data } = await axios({
-    method: "POST",
-    url: `${api}/file/create`,
-    data: form,
-  });
-
-  return data.file[0].attributes.url;
 }
