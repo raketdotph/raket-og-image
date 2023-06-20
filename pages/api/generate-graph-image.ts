@@ -24,6 +24,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     let fetchUrl = ``;
     if (type === "raketeer") {
       fetchUrl = `${origin}/${username}`;
+      console.log("fetch url", fetchUrl);
     } else if (type === "raket") {
       fetchUrl = `${origin}/${username}/${slug}`;
     } else if (type === "product") {
@@ -35,6 +36,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
     // 1. get the raketeer / raket / product, check if seo image is already generated, return if already generated
     const seoData = await fetchSEOData(username, slug, type);
+    console.log("seo data", seoData);
     if (!force && !!seoData.ogImage) {
       res.statusCode = 405;
       res.json({ status: 405, message: "Seo image already generated" });
@@ -43,6 +45,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
     // 2. generate the image
     const image = await generateImage(fetchUrl);
+    console.log("has image");
 
     // 3. save {image} to database
     const imageUrl = await saveImageToDatabase(
@@ -52,9 +55,12 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
       image
     );
 
+    console.log("save to db");
+
     res.statusCode = 200;
     res.send({ status: 200, url: imageUrl.data[0].url });
   } catch (error) {
+    console.log("error", error);
     res.json({
       status: "error",
       data: error || "Something went wrong",
