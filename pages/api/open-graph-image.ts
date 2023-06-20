@@ -5,7 +5,7 @@ import puppeteer from "puppeteer";
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   try {
     const relativeUrl = (req.query["path"] as string) || "";
-    const url = "https://raket.ph/" + relativeUrl;
+    const url = `${process.env.RAKET_ORIGIN}${relativeUrl}`;
 
     const options = {
       args: [
