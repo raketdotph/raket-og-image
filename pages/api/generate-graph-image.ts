@@ -100,9 +100,11 @@ async function fetchSEOData(
     url: `${api}/raketeer?username=${username}`,
   });
 
+  console.log("me", userData);
+
   const seoData: SEOData = {
     ogImage:
-      (userData as Raketeer).attributes.ogImage.data?.attributes.url ?? null,
+      (userData as Raketeer).attributes?.ogImage?.data?.attributes.url ?? null,
     data: userData,
     id: userData.id,
     userId: userData.id,
