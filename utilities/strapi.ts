@@ -2,7 +2,7 @@ import { DataType } from "@/pages/api/generate-graph-image";
 import axios from "axios";
 import { File as BufferFile } from "buffer";
 
-const uploadApi = "https://api-dev.raket.ph";
+const uploadApi = process.env.STRAPI_API;
 
 export interface BuildStrapiUploadFormDataParams {
   refId: string;
@@ -49,7 +49,7 @@ export async function saveImageToDatabase(
     url: `${uploadApi}/api/upload`,
     data: form,
     headers: {
-      Authorization: `Bearer 44f950fe989a5cc7ba61091d293db1c0b9ec904b31e52da0655f74eaecdc768f7d7c52e1910dbf5ca2a51f770eb037d80dff3b1fd9fa8c21b60f88223a3169753f5d95ac76ef5b85841635fc36beeddc63769d68b030f74c023e2a54ab79b6134c36792434fa4509cd4dc9b9f6693bbff9c2e65440178d401c3b96bd2ec6564b`,
+      Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
     },
   }).catch((reason) => {
     console.error(reason, "ERROR REASON", reason.request);

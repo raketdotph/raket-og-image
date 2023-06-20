@@ -6,8 +6,8 @@ import axios from "axios";
 import qs from "qs";
 import { Product, Raket, Raketeer, SEOData } from "@/interfaces/interface";
 
-const api = "http://localhost:3000/api";
-const origin = "http://localhost:3000/";
+const api = process.env.RAKET_API;
+const origin = process.env.RAKET_ORIGIN;
 
 export type DataType = "raket" | "raketeer" | "product";
 
