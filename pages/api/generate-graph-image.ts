@@ -5,6 +5,7 @@ import puppeteer from "puppeteer";
 import axios from "axios";
 import qs from "qs";
 import { Product, Raket, Raketeer, SEOData } from "@/interfaces/interface";
+import { NextResponse } from "next/server";
 
 const api = process.env.RAKET_API;
 const origin = process.env.RAKET_ORIGIN;
@@ -15,6 +16,8 @@ export type DataType = "raket" | "raketeer" | "product";
 // GET /generate-graph-image?username=joyce&type=raket&slug=test-raket
 // GET /generate-graph-image?username=joyce&type=product&slug=test-product
 export default async function (req: NextApiRequest, res: NextApiResponse) {
+  const response = NextResponse.next()
+  
   try {
     const username = (req.query["username"] as string) || "";
     const slug = (req.query["slug"] as string) || "";
@@ -56,6 +59,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     );
 
     console.log("save to db");
+
+
+    response.headers.append("Access-Control-Allow-Origin", "*")
 
     res.statusCode = 200;
     res.send({ status: 200, url: imageUrl.data[0].url });
